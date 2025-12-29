@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Food Recommender - Pangan Lokal Kaya Nutrisi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2FF;
+            --secondary-color: #f8b739;
+            --accent-color: #e74c3c;
+            --light-color: #f5f7fa;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #5cbdb9 100%);
+            color: white;
+            padding: 4rem 0;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .food-card {
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-color);
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .food-img {
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .nutrient-badge {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        
+        .region-badge {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .preference-tag {
+            display: inline-block;
+            background-color: var(--light-color);
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .ai-response {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .error-message {
+            color: var(--accent-color);
+            background-color: #fdecea;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">Rekomendasi Pangan Lokal Kaya Nutrisi</h1>
+            <p class="lead mb-5">Temukan makanan khas daerah yang kaya nutrisi untuk memenuhi kebutuhan gizi anak dan ibu hamil</p>
+            <a href="#recommender" class="btn btn-light btn-lg px-4">Dapatkan Rekomendasi</a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Fitur Unggulan</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-map-marker-alt fa-3x mb-3 text-primary"></i>
+                            <h3>Berdasarkan Wilayah</h3>
+                            <p class="text-muted">Rekomendasi makanan khas daerah sesuai lokasi Anda</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-baby fa-3x mb-3 text-primary"></i>
+                            <h3>Kebutuhan Gizi Spesifik</h3>
+                            <p class="text-muted">Disesuaikan untuk anak dan ibu hamil</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-robot fa-3x mb-3 text-primary"></i>
+                            <h3>Teknologi AI</h3>
+                            <p class="text-muted">Menggunakan Artificial Intelligence untuk rekomendasi personal</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommender Form -->
+    <section id="recommender" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Dapatkan Rekomendasi</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Preferensi Anda</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="preferenceForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Wilayah</label>
+                                        <select class="form-select" id="regionSelect" required>
+                                            <option value="">Pilih Wilayah</option>
+                                            <option value="Jawa">Jawa</option>
+                                            <option value="Sumatera">Sumatera</option>
+                                            <option value="Kalimantan">Kalimantan</option>
+                                            <option value="Sulawesi">Sulawesi</option>
+                                            <option value="Bali & Nusa Tenggara">Bali & Nusa Tenggara</option>
+                                            <option value="Papua & Maluku">Papua & Maluku</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Target Nutrisi</label>
+                                        <select class="form-select" id="targetSelect" required>
+                                            <option value="">Pilih Target</option>
+                                            <option value="Anak (1-5 tahun)">Anak (1-5 tahun)</option>
+                                            <option value="Ibu Hamil">Ibu Hamil</option>
+                                            <option value="Remaja">Remaja</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Preferensi Makanan</label>
+                                    <div id="preferencesContainer" class="mb-3">
+                                        <!-- Preferences will be added here -->
+                                    </div>
+                                    <div class="input-group">
+                                        <select class="form-select" id="preferenceSelect">
+                                            <option value="">Pilih preferensi</option>
+                                            <option value="Hewani">Hewani</option>
+                                            <option value="Halal">Halal</option>
+                                            <option value="Bebas Gluten">Bebas Gluten</option>
+                                            <option value="Bebas Laktosa">Bebas Laktosa</option>
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="button" id="addPreferenceBtn">Tambah</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Kebutuhan Nutrisi Khusus</label>
+                                    <textarea class="form-control" id="specialNeeds" rows="2" placeholder="Contoh: Makanan tinggi zat besi, kaya protein, dll"></textarea>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button type="button" class="btn btn-primary btn-lg px-5" id="recommendBtn">
+                                        <span id="recommendText">Dapatkan Rekomendasi</span>
+                                        <div class="spinner-border spinner-border-sm text-light loading-spinner" role="status" id="recommendSpinner">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendations Results -->
+    <section class="py-5" id="resultsSection" style="display: none;">
+        <div class="container">
+            <h2 class="text-center mb-5">Rekomendasi Pangan Lokal</h2>
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="ai-response" id="aiSummary">
+                        <div class="text-center py-3" id="aiLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Menganalisis dan memberikan rekomendasi...</p>
+                        </div>
+                        <div id="aiSummaryContent" style="display: none;"></div>
+                        <div id="apiError" class="error-message" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" id="foodRecommendations">
+                <!-- Food cards will be inserted here -->
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="ai-response" id="aiNutritionTips">
+                        <h5 class="mb-3"></h5>
+                        <div id="nutritionTipsContent"></div>
+                   
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="mb-4">Tentang Local Food Recommender</h2>
+                    <p class="lead">Sistem ini menggunakan teknologi Deep Learning dan Artificial Intelligence untuk menganalisis kandungan nutrisi dari berbagai pangan lokal di seluruh Indonesia dan memberikan rekomendasi yang sesuai dengan kebutuhan gizi spesifik pengguna.</p>
+                    <p>Dikembangkan untuk mendukung program pencegahan stunting dan peningkatan gizi masyarakat melalui pemanfaatan bahan makanan lokal yang terjangkau dan mudah didapat.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 Local Food Recommender - Pangan Lokal Kaya Nutrisi</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        // Global variables
+        let preferences = [];
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add preference event
+            document.getElementById('addPreferenceBtn').addEventListener('click', addPreference);
+            
+            // Get recommendations event
+            document.getElementById('recommendBtn').addEventListener('click', getRecommendations);
+        });
+        
+        // Add preference to the list
+        function addPreference() {
+            const select = document.getElementById('preferenceSelect');
+            const preference = select.value;
+            
+            if (preference && !preferences.includes(preference)) {
+                preferences.push(preference);
+                renderPreferences();
+                select.value = '';
+            }
+        }
+        
+        // Render preferences list
+        function renderPreferences() {
+            const container = document.getElementById('preferencesContainer');
+            container.innerHTML = '';
+            
+            if (preferences.length === 0) {
+                container.innerHTML = '<p class="text-muted">Belum ada preferensi yang dipilih</p>';
+                return;
+            }
+            
+            preferences.forEach((pref, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'preference-tag';
+                tag.innerHTML = `
+                    ${pref}
+                    <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Remove" data-index="${index}"></button>
+                `;
+                container.appendChild(tag);
+            });
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.preference-tag .btn-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    preferences.splice(index, 1);
+                    renderPreferences();
+                });
+            });
+        }
+        
+        // Get food recommendations
+        async function getRecommendations() {
+            const region = document.getElementById('regionSelect').value;
+            const target = document.getElementById('targetSelect').value;
+            const specialNeeds = document.getElementById('specialNeeds').value;
+            
+            if (!region || !target) {
+                alert('Silakan pilih wilayah dan target nutrisi terlebih dahulu');
+                return;
+            }
+            
+            // Show loading state
+            const recommendBtn = document.getElementById('recommendBtn');
+            const recommendText = document.getElementById('recommendText');
+            const spinner = document.getElementById('recommendSpinner');
+            
+            recommendBtn.disabled = true;
+            recommendText.textContent = 'Mencari rekomendasi...';
+            spinner.style.display = 'inline-block';
+            
+            try {
+                // Show results section
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('aiLoading').style.display = 'block';
+                document.getElementById('aiSummaryContent').style.display = 'none';
+                document.getElementById('apiError').style.display = 'none';
+                document.getElementById('foodRecommendations').innerHTML = '';
+                document.getElementById('nutritionTipsContent').innerHTML = '';
+                
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                
+                // Get AI-enhanced recommendations
+                await getAIEnhancedRecommendations(region, target, preferences, specialNeeds);
+                
+            } catch (error) {
+                console.error('Error getting recommendations:', error);
+                document.getElementById('apiError').style.display = 'block';
+                document.getElementById('apiError').textContent = 'Gagal mendapatkan rekomendasi: ' + error.message;
+            } finally {
+                // Reset button state
+                recommendBtn.disabled = false;
+                recommendText.textContent = 'Dapatkan Rekomendasi';
+                spinner.style.display = 'none';
+            }
+        }
+        
+        // Get AI-enhanced recommendations using Gemini API
+        async function getAIEnhancedRecommendations(region, target, preferences, specialNeeds) {
+            // Prepare prompt for Gemini API
+            const prompt = `Anda adalah ahli gizi Indonesia. Berikan rekomendasi 3-5 makanan khas daerah ${region} yang sangat bergizi untuk ${target}. 
+            
+Preferensi diet: ${preferences.length > 0 ? preferences.join(', ') : 'Tidak ada preferensi khusus'}
+Kebutuhan khusus: ${specialNeeds || 'Tidak ada kebutuhan khusus'}
+
+Format respons dalam HTML:
+<div class="ai-summary">
+  <h3>Rekomendasi Pangan Lokal ${region} untuk ${target}</h3>
+  <p>[Ringkasan analisis kebutuhan gizi dan manfaat makanan yang direkomendasikan]</p>
+</div>
+
+<div class="food-recommendations">
+  <h4>Makanan yang Direkomendasikan:</h4>
+  <div class="row">
+    <!-- Untuk setiap makanan -->
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card food-card h-100">
+        <div class="card-body">
+          <h5 class="card-title">[Nama Makanan]</h5>
+          <p class="card-text">[Deskripsi singkat]</p>
+          <div class="mb-2">
+            [Nutrisi utama dalam bentuk badge] <span class="nutrient-badge">[Nutrisi]</span>
+            <span class="nutrient-badge region-badge">${region}</span>
+          </div>
+          <div class="mb-3">
+            <h6>Manfaat untuk ${target}:</h6>
+            <p>[Manfaat spesifik]</p>
+          </div>
+          <div class="mb-3">
+            <h6>Saran Penyajian:</h6>
+            <p>[Cara penyajian ideal]</p>
+          </div>
+          <div>
+            <h6>Tip Resep:</h6>
+            <p class="text-muted">[Saran cara memasak]</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Akhir makanan -->
+  </div>
+</div>
+
+<div class="nutrition-tips">
+  <h4>Tips Nutrisi:</h4>
+  <ul>
+    <li>[Tip 1]</li>
+    <li>[Tip 2]</li>
+    <li>[Tip 3]</li>
+  </ul>
+</div>
+
+Gunakan bahasa Indonesia yang formal tetapi mudah dimengerti. Fokus pada pencegahan malnutrisi dan pemenuhan gizi spesifik untuk target.`;
+
+            // Call Gemini API
+            const apiKey = 'AIzaSyBGXywnksPv6PgcQVPHJaMvhXJiMi5jqjo'; // Replace with your actual API key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }]
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            
+            // Display the AI response directly (it's already formatted in HTML)
+            document.getElementById('aiLoading').style.display = 'none';
+            document.getElementById('foodRecommendations').innerHTML = aiResponse;
+        }
+    </script>
+</body>
+</html>
